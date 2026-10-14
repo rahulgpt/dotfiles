@@ -1,0 +1,35 @@
+[user]
+	email = rahulr09gupta@gmail.com
+	name = Rahul Gupta
+[init]
+	defaultBranch = main
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[alias]
+	b = branch
+	am = commit -am
+	cm = commit -m
+	a = add .
+	s = status
+	undo = reset --soft HEAD^
+[core]
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	side-by-side = true
+	line-numbers = true
+	syntax-theme = gruvbox-dark
+	hyperlinks = true
+[merge]
+	conflictstyle = zdiff3
+[diff]
+	colorMoved = default
+
+# Machine-specific overrides (e.g. work email). Not tracked in the repo.
+[include]
+	path = ~/.gitconfig.local
