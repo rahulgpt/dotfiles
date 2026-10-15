@@ -3,6 +3,9 @@
 #
 #   ./install.sh           copy configs into place
 #   ./install.sh --brew    also install the tools + font from the Brewfile first
+#   ./install.sh --clean   remove whatever is at each target (including old
+#                          symlinks) and copy fresh, and wipe Neovim's plugin
+#                          data so lazy.nvim/Mason reinstall from scratch
 #
 # Anything already at a target path is moved to ~/.dotfiles-backup/<timestamp>/
 # before it's replaced, so nothing is lost. To pull changes made on a machine
@@ -13,11 +16,13 @@ set -euo pipefail
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 BREW=0
+CLEAN=0
 
 for arg in "$@"; do
   case "$arg" in
     --brew) BREW=1 ;;
-    -h|--help) sed -n '2,9p' "$0"; exit 0 ;;
+    --clean) CLEAN=1 ;;
+    -h|--help) sed -n '2,12p' "$0"; exit 0 ;;
     *) echo "Unknown option: $arg" >&2; exit 1 ;;
   esac
 done
@@ -27,8 +32,8 @@ source "$DOTFILES/paths.sh"
 install_one() {
   local src="$DOTFILES/$1" dest="$2"
 
-  # Already identical to the repo: nothing to do.
-  if [ ! -L "$dest" ] && diff -rq "$src" "$dest" >/dev/null 2>&1; then
+  # Already identical to the repo: nothing to do (unless --clean).
+  if [ "$CLEAN" = 0 ] && [ ! -L "$dest" ] && diff -rq "$src" "$dest" >/dev/null 2>&1; then
     echo "ok       $dest"
     return
   fi
@@ -36,6 +41,7 @@ install_one() {
   if [ -L "$dest" ]; then
     # Leftover symlink from an older setup: drop it, the copy replaces it.
     rm "$dest"
+    echo "unlink   $dest"
   elif [ -e "$dest" ]; then
     mkdir -p "$BACKUP_DIR"
     mv "$dest" "$BACKUP_DIR/"
@@ -53,6 +59,16 @@ if [ "$BREW" = 1 ]; then
     exit 1
   fi
   brew bundle --file="$DOTFILES/Brewfile"
+fi
+
+if [ "$CLEAN" = 1 ]; then
+  # Plugin/LSP installs are all re-downloadable, so these aren't backed up.
+  for dir in "$HOME/.local/share/nvim" "$HOME/.local/state/nvim" "$HOME/.cache/nvim"; do
+    if [ -e "$dir" ]; then
+      rm -rf "$dir"
+      echo "clean    $dir"
+    fi
+  done
 fi
 
 for entry in "${CONFIGS[@]}"; do
