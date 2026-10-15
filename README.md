@@ -19,8 +19,22 @@ cd ~/dotfiles
 ```
 
 - `--brew` installs neovim, tmux, ripgrep, fzf, Alacritty, FiraCode Nerd Font, etc. from the `Brewfile`. Skip it if you already have them.
-- By default configs are **symlinked**, so editing them on any machine changes the repo. Commit and pull to sync. Use `--copy` for plain copies instead.
+- Configs are **copied** into place as regular files (no symlinks).
 - Existing configs are moved to `~/.dotfiles-backup/<timestamp>/` first.
+
+## Saving changes back to the repo
+
+Since configs are copies, edits on a machine don't touch the repo. To save them:
+
+```sh
+./save.sh        # copies the live configs into the repo
+git diff         # review
+git commit -am "Update configs" && git push
+```
+
+On the other machine, `git pull && ./install.sh` to apply.
+
+Paths for both scripts live in `paths.sh`.
 
 Then open `nvim` once to let lazy.nvim and Mason install everything. Neovim keybindings are in [`nvim/README.md`](nvim/README.md).
 

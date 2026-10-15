@@ -1,61 +1,44 @@
 #!/usr/bin/env bash
-# Link (or copy) the configs in this repo to where each tool expects them.
+# Copy the configs in this repo to where each tool expects them.
 #
-#   ./install.sh           symlink configs (edits on this machine land in the repo)
-#   ./install.sh --copy    copy configs instead of symlinking
+#   ./install.sh           copy configs into place
 #   ./install.sh --brew    also install the tools + font from the Brewfile first
 #
 # Anything already at a target path is moved to ~/.dotfiles-backup/<timestamp>/
-# before it's replaced, so nothing is lost.
+# before it's replaced, so nothing is lost. To pull changes made on a machine
+# back into the repo, run ./save.sh.
 
 set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
-MODE="link"
 BREW=0
 
 for arg in "$@"; do
   case "$arg" in
-    --copy) MODE="copy" ;;
     --brew) BREW=1 ;;
     -h|--help) sed -n '2,9p' "$0"; exit 0 ;;
     *) echo "Unknown option: $arg" >&2; exit 1 ;;
   esac
 done
 
-# repo path -> target path
-LINKS=(
-  "tmux/tmux.conf:$HOME/.tmux.conf"
-  "nvim:$HOME/.config/nvim"
-  "alacritty:$HOME/.config/alacritty"
-  "git/gitconfig:$HOME/.gitconfig"
-  "zsh/zshrc:$HOME/.zshrc"
-)
+source "$DOTFILES/paths.sh"
 
 install_one() {
   local src="$DOTFILES/$1" dest="$2"
 
-  # Already linked to this repo: nothing to do.
-  if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
-    echo "ok       $dest"
-    return
-  fi
-
-  if [ -e "$dest" ] || [ -L "$dest" ]; then
+  if [ -L "$dest" ]; then
+    # Leftover symlink from an older setup: drop it, the copy replaces it.
+    rm "$dest"
+  elif [ -e "$dest" ]; then
     mkdir -p "$BACKUP_DIR"
     mv "$dest" "$BACKUP_DIR/"
     echo "backup   $dest -> $BACKUP_DIR/"
   fi
 
   mkdir -p "$(dirname "$dest")"
-  if [ "$MODE" = "link" ]; then
-    ln -s "$src" "$dest"
-    echo "link     $dest -> $src"
-  else
-    cp -R "$src" "$dest"
-    echo "copy     $dest"
-  fi
+  cp -R "$src" "$dest"
+  echo "copy     $dest"
 }
 
 if [ "$BREW" = 1 ]; then
@@ -66,7 +49,7 @@ if [ "$BREW" = 1 ]; then
   brew bundle --file="$DOTFILES/Brewfile"
 fi
 
-for entry in "${LINKS[@]}"; do
+for entry in "${CONFIGS[@]}"; do
   install_one "${entry%%:*}" "${entry#*:}"
 done
 
