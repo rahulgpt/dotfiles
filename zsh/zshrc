@@ -8,7 +8,13 @@ plugins=(git)
 [ -f "$ZSH/oh-my-zsh.sh" ] && source "$ZSH/oh-my-zsh.sh"
 
 command -v brew >/dev/null && [[ -s "$(brew --prefix)/etc/autojump.sh" ]] && . "$(brew --prefix)/etc/autojump.sh"
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# fzf key bindings (Ctrl-R history, Ctrl-T files, Alt-C cd) + completion.
+# ~/.fzf.zsh exists for a git install of fzf; Homebrew's fzf ships them via --zsh.
+if [ -f ~/.fzf.zsh ]; then
+  source ~/.fzf.zsh
+elif command -v fzf >/dev/null; then
+  source <(fzf --zsh)
+fi
 
 alias v=nvim
 alias python=python3
