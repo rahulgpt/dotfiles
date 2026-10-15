@@ -27,6 +27,12 @@ source "$DOTFILES/paths.sh"
 install_one() {
   local src="$DOTFILES/$1" dest="$2"
 
+  # Already identical to the repo: nothing to do.
+  if [ ! -L "$dest" ] && diff -rq "$src" "$dest" >/dev/null 2>&1; then
+    echo "ok       $dest"
+    return
+  fi
+
   if [ -L "$dest" ]; then
     # Leftover symlink from an older setup: drop it, the copy replaces it.
     rm "$dest"
