@@ -1,6 +1,6 @@
 # dotfiles
 
-My tmux, Neovim, Alacritty, git and zsh setup (macOS).
+My tmux, Neovim, Alacritty, Zed, git and zsh setup (macOS).
 
 | Config     | Lives at               |
 | ---------- | ---------------------- |
@@ -9,6 +9,7 @@ My tmux, Neovim, Alacritty, git and zsh setup (macOS).
 | `alacritty/` | `~/.config/alacritty` |
 | `git/`     | `~/.gitconfig`         |
 | `zsh/`     | `~/.zshrc`             |
+| `zed/`     | `~/.config/zed/` (`settings.json`, `keymap.json`, `themes/`) |
 
 ## Setup on a new machine
 
@@ -54,4 +55,5 @@ The zshrc expects [oh-my-zsh](https://ohmyz.sh) (`sh -c "$(curl -fsSL https://ra
 ## Notes
 
 - tmux prefix is `Ctrl-Space`. Copy mode uses `pbcopy`, so it's macOS-only as written.
+- Zed: the keymap mirrors the Neovim keys (leader = space) and Cursor (`cmd-l` sends the selection to the agent panel). Zed installs the extensions listed in `auto_install_extensions` on first launch. Run `/login` in a Claude Agent thread once per machine.
 - `alacritty/themes/` is the [alacritty-theme](https://github.com/alacritty/alacritty-theme) collection; switch themes via the `import` line in `alacritty.toml`.

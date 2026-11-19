@@ -1,0 +1,60 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "vim_mode": false,
+  "markdown_preview": {
+    "max_width": 1200.0,
+    "limit_content_width": true
+  },
+  "diff_view_style": "split",
+  "prettier": {
+    "allowed": false
+  },
+  "format_on_save": "modifications",
+  "icon_theme": {
+    "mode": "light",
+    "light": "Zed (Default)",
+    "dark": "Zed (Default)"
+  },
+  "disable_ai": false,
+  "agent": {
+    "dock": "right",
+    "threads_sidebar": {
+      "position": "left"
+    },
+    "favorite_models": [],
+    "model_parameters": []
+  },
+  "agent_servers": {
+    "claude-acp": {
+      "type": "registry"
+    }
+  },
+  "ui_font_size": 16,
+  "buffer_font_size": 14.0,
+  "theme": {
+    "mode": "dark",
+    "light": "Ayu Light",
+    "dark": "Ayu Dark", // also installed: "Dainty One Dark Pro" (~/.config/zed/themes/)
+  },
+  // Installed automatically on a new machine
+  "auto_install_extensions": {
+    "csv": true,
+    "emmet": true,
+    "html": true,
+    "php": true
+  },
+  "project_panel": { "dock": "left" },
+  "git_panel": {
+    "dock": "left",
+    // Clicking a changed file opens the whole file with its diff (like VS Code)
+    // instead of the multi-file "Uncommitted Changes" view. cmd-click opens that.
+    "entry_primary_click_action": "file_diff"
+  }
+}

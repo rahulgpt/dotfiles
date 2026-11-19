@@ -1,0 +1,256 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+//
+// Most of this mirrors ~/.config/nvim (leader = space). Blocks with a
+// vim_mode context only apply while "vim_mode" is on in settings.json.
+[
+  {
+    // Jumplist: ctrl-o goes back out of a definition, ctrl-i goes back in.
+    // Vim mode already does this in normal mode; this block keeps it working
+    // if vim mode is ever turned off. Insert-mode ctrl-o/ctrl-i are restored
+    // in the insert block below.
+    "context": "Editor && mode == full",
+    "bindings": {
+      "ctrl-o": "pane::GoBack",
+      "ctrl-i": "pane::GoForward"
+    }
+  },
+  {
+    // Git changes in a file: cmd-' toggles the change under the cursor (default),
+    // cmd-shift-' toggles ALL changes in the file (default only expands them)
+    "context": "Editor",
+    "bindings": {
+      "cmd-\"": "editor::ToggleAllDiffHunks"
+    }
+  },
+  {
+    // Cursor's shift-click on a fold arrow (Zed's arrow ignores shift, so it's a key).
+    // Cursor on a line with a fold arrow (e.g. `const x = {`):
+    //   cmd-k cmd-{  collapse every block inside it, keep the block itself open
+    //   cmd-k cmd-}  open the block and every block inside it
+    // How: go to line start, fold the block, select to the end of its folded line
+    // (= the whole block), unfold, fold every block in the selection
+    // (cmd-k cmd-[ = FoldRecursive), collapse the selection, reopen the outer block.
+    // All keys used are Zed defaults. Normal file tabs only; not wired for vim mode.
+    "context": "Editor && mode == full && !multibuffer && !vim_mode",
+    "bindings": {
+      "cmd-k cmd-{": [
+        "workspace::SendKeystrokes",
+        "alt-cmd-] cmd-left alt-cmd-[ cmd-shift-right alt-cmd-] cmd-k cmd-[ left alt-cmd-]"
+      ],
+      "cmd-k cmd-}": [
+        "workspace::SendKeystrokes",
+        "alt-cmd-] cmd-left alt-cmd-[ cmd-shift-right alt-cmd-] left"
+      ]
+    }
+  },
+  {
+    // Cursor-style cmd-l, part 1: in the editor, add the selection to the agent
+    // thread and open the panel (with nothing selected Zed adds the current line).
+    // Replaces Zed's cmd-l = select line; cmd-> does the same thing by default.
+    "context": "!AcpThread > Editor && mode == full",
+    "bindings": {
+      "cmd-l": "agent::AddSelectionToThread"
+    }
+  },
+  {
+    // Cursor-style cmd-l, part 2: pressed inside the agent panel (chat box,
+    // thread, or a terminal thread) it closes the panel and focuses the editor.
+    // Uses ToggleRightDock because the agent panel is docked right (agent.dock).
+    "context": "AgentPanel > Editor || AgentPanel",
+    "bindings": {
+      "cmd-l": "workspace::ToggleRightDock"
+    }
+  },
+  {
+    // core/keymaps.lua + plugin keymaps (normal mode)
+    "context": "vim_mode == normal && !menu",
+    "bindings": {
+      // core
+      "space s": "workspace::Save",
+      "shift-h": "vim::FirstNonWhitespace",
+      "shift-l": "vim::EndOfLine",
+      "shift-q": ["pane::CloseActiveItem", { "save_intent": "save_all" }],
+      "space h": "buffer_search::Dismiss",
+
+      // splits
+      "v v": "pane::SplitVertical",
+      "s s": "pane::SplitHorizontal",
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-w ,": "vim::ResizePaneLeft",
+      "ctrl-w .": "vim::ResizePaneRight",
+
+      // fzf-lua
+      "ctrl-p": "file_finder::Toggle",
+      "space b": "tab_switcher::ToggleAll",
+      "space /": "pane::DeploySearch",
+
+      // LSP (gd and K are already Zed vim defaults)
+      "g r": "editor::FindAllReferences",
+      "g f": "editor::ToggleCodeActions",
+      "space r n": "editor::Rename",
+      "space d": "editor::Hover", // approximate: hover shows the diagnostic at the cursor
+
+      // nvim-tree
+      "space e e": "project_panel::Toggle",
+      "space e f": "pane::RevealInProjectPanel",
+      "space e c": "project_panel::CollapseAllEntries",
+
+      // gitsigns / fugitive
+      "] h": "editor::GoToHunk",
+      "[ h": "editor::GoToPreviousHunk",
+      "space h p": "editor::ToggleSelectedDiffHunks",
+      "space h s": "git::ToggleStaged",
+      "space h r": "git::Restore",
+      "space h shift-s": "git::StageFile",
+      "space h shift-r": "git::RestoreFile",
+      "space h b": "editor::BlameHover",
+      "space h shift-b": "editor::ToggleGitBlameInline",
+      "space h d": "git::OpenFileDiff",
+      "space o": "git::OpenFileDiff",
+
+      // markdown-preview / toggleterm
+      "space m p": "markdown::OpenPreviewToTheSide",
+      "space t t": "terminal_panel::Toggle"
+    }
+  },
+  {
+    // NvimTreeToggle: if the explorer is showing, space e e closes it even when
+    // the cursor is in the editor (the block above opens + focuses it otherwise)
+    "context": "(Workspace && left_dock == ProjectPanel) > (Editor && vim_mode == normal && !menu)",
+    "bindings": {
+      "space e e": "workspace::ToggleLeftDock"
+    }
+  },
+  {
+    // visual mode
+    "context": "vim_mode == visual && !menu",
+    "bindings": {
+      "tab": ["workspace::SendKeystrokes", "> g v"],
+      "shift-tab": ["workspace::SendKeystrokes", "< g v"],
+      "p": ["vim::Paste", { "preserve_clipboard": true }], // like "_dP
+      "g f": "editor::ToggleCodeActions",
+      "space h r": "git::Restore"
+    }
+  },
+  {
+    // insert mode
+    "context": "vim_mode == insert",
+    "bindings": {
+      "j k": "vim::NormalBefore",
+      "ctrl-o": "vim::TemporaryNormal",
+      "ctrl-i": "editor::Tab"
+    }
+  },
+  {
+    // nvim-cmp: tab / ctrl-j / ctrl-k move through the list, enter accepts
+    "context": "Editor && vim_mode == insert && showing_completions",
+    "bindings": {
+      "tab": "editor::ContextMenuNext",
+      "shift-tab": "editor::ContextMenuPrevious",
+      "ctrl-j": "editor::ContextMenuNext",
+      "ctrl-k": "editor::ContextMenuPrevious",
+      "ctrl-e": "editor::Cancel"
+    }
+  },
+  {
+    // fzf-lua: ctrl-j / ctrl-k move in pickers (file finder, palette, ...)
+    "context": "Picker > Editor",
+    "bindings": {
+      "ctrl-j": "menu::SelectNext",
+      "ctrl-k": "menu::SelectPrevious"
+    }
+  },
+  {
+    // ctrl-h/j/k/l out of the side panels, same as between splits
+    "context": "ProjectPanel && not_editing",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight"
+    }
+  },
+  {
+    // nvim-tree default keys in the explorer (replace Zed's netrw-style ones)
+    "context": "ProjectPanel && not_editing",
+    "bindings": {
+      // open
+      "o": "project_panel::OpenPermanent",
+      "shift-o": "project_panel::OpenPermanent",
+      "tab": "project_panel::Open", // preview, cursor stays in the tree
+      "ctrl-v": "project_panel::OpenSplitVertical",
+      "ctrl-x": "project_panel::OpenSplitHorizontal",
+      "q": "workspace::ToggleLeftDock", // close the explorer, focus back to the editor
+      "space e e": "workspace::ToggleLeftDock",
+      "space e c": "project_panel::CollapseAllEntries",
+
+      // navigate
+      "backspace": "project_panel::CollapseSelectedEntry",
+      "shift-p": "project_panel::SelectParent",
+      "shift-w": "project_panel::CollapseAllEntries",
+      "shift-e": "project_panel::ExpandAllEntries",
+      "] e": "project_panel::SelectNextDiagnostic",
+      "[ e": "project_panel::SelectPrevDiagnostic",
+
+      // file operations
+      "a": "project_panel::NewFile", // end the name with / to make a folder
+      "r": "project_panel::Rename",
+      "e": "project_panel::Rename",
+      "d": ["project_panel::Delete", { "skip_prompt": false }],
+      "delete": ["project_panel::Delete", { "skip_prompt": false }],
+      "shift-d": ["project_panel::Trash", { "skip_prompt": false }],
+      "x": "project_panel::Cut",
+      "c": "project_panel::Copy",
+      "p": "project_panel::Paste",
+      "shift-y": "workspace::CopyRelativePath",
+      "g y": "workspace::CopyPath",
+
+      // filters
+      "shift-h": "project_panel::ToggleHideHidden",
+      "shift-i": "project_panel::ToggleHideGitIgnore"
+    }
+  },
+  {
+    "context": "OutlinePanel && not_editing",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight"
+    }
+  },
+  {
+    "context": "GitPanel && (ChangesList || HistoryList) && !GitBranchSelector && !GitRepositorySelector",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight"
+    }
+  },
+  {
+    // Git panel: enter opens the whole-file diff (like VS Code), cmd-enter
+    // opens the multi-file "Uncommitted Changes" view. Matches the click setting.
+    "context": "GitPanel && ChangesList && !GitBranchSelector && !GitRepositorySelector",
+    "bindings": {
+      "enter": "menu::SecondaryConfirm",
+      "cmd-enter": "menu::Confirm"
+    }
+  },
+  {
+    // toggleterm open_mapping (works from the editor and inside the terminal)
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-\\": "terminal_panel::Toggle"
+    }
+  }
+]

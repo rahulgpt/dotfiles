@@ -86,6 +86,7 @@ fi
 echo
 echo "Done. Next:"
 echo "  - Open nvim once: lazy.nvim installs plugins, Mason installs LSPs/formatters."
+echo "  - Restart Zed (it installs its extensions); run /login in a Claude Agent thread."
 echo "  - In tmux, press prefix (Ctrl-Space) + I if any plugin is missing."
 echo "  - Put machine-specific git settings (work email) in ~/.gitconfig.local"
 echo "    and shell aliases/secrets in ~/.zshrc.local. Neither is tracked."
